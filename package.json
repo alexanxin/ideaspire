@@ -1,0 +1,42 @@
+{
+  "name": "ideaspire",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "start": "next start",
+    "lint": "eslint",
+    "test-similarity": "node -r esbuild-register src/scripts/testSimilarity.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/auth-ui-react": "^0.4.7",
+    "@supabase/auth-ui-shared": "^0.1.8",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.57.4",
+    "axios": "^1.12.2",
+    "cheerio": "^1.1.2",
+    "framer-motion": "^12.23.22",
+    "lucide-react": "^0.544.0",
+    "next": "15.5.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-slick": "^0.31.0",
+    "react-spinners": "^0.17.0",
+    "serpapi": "^2.2.1",
+    "snoowrap": "^1.23.0",
+    "twitter-api-v2": "^1.27.0",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "esbuild-register": "^3.6.0",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.3",
+    "tailwindcss": "^4"
+  }
+}

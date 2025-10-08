@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+:root {
+ --background: #0a0a0a; /* Dark background */
+  --foreground: #ededed; /* Light foreground */
+ --font-inter: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, Monaco, 'Liberation Mono', 'Courier New', monospace;
+}
+
+@theme inline {
+ --color-background: var(--background);
+  --color-foreground: var(--foreground);
+ --font-sans: var(--font-inter);
+  --font-mono: var(--font-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+ background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%); /* Dark gradient background */
+  color: var(--foreground);
+  font-family: var(--font-inter);
+ overflow-y: auto;
+ margin: 0;
+ padding: 0;
+}
+
+/* Ensure full height for the app */
+#__next {
+  height: 100vh;
+ width: 100vw;
+  overflow-y: auto;
+}
+
+/* Improve 3D perspective */
+* {
+  transform-style: preserve-3d;
+}
+
+/* Custom typography classes */
+.h1 {
+  font-size: 2.25rem; /* 4xl */
+  line-height: 2.5rem;
+ font-weight: 700;
+ letter-spacing: 0.025em;
+}
+
+.h2 {
+  font-size: 1.875rem; /* 3xl */
+  line-height: 2.25rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+}
+
+.body {
+  font-size: 1.125rem; /* lg */
+  line-height: 1.75rem;
+  letter-spacing: 0.025em;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.info-box {
+  border: 1px solid #303030;
+  padding: 8px 12px;
+  border-radius: 8px;
+ background-color: #270e3b2f; /* #03448c with 20% opacity */
+  color: #17ffc6ab;
+}
+
+.header-gradient {
+  background: linear-gradient(135deg, #03448c 0%, #17ffc6 100%);
+}
+
+.text-gradient {
+  background: linear-gradient(180deg, white, #17ffc5, #03438c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+/* Animated gradient for buttons */
+@keyframes gradient-x {
+ 0% {
+   background-position: 0% 50%;
+ }
+ 50% {
+   background-position: 100% 50%;
+ }
+ 100% {
+   background-position: 0% 50%;
+ }
+}
+
+.animate-gradient-x {
+ background-size: 200% 200%;
+animation: gradient-x 9s ease infinite;
+}
+
+/* Animated border for spin button */
+@keyframes spin-slow {
+ 0% {
+   background-position: 0% 50%;
+ }
+ 50% {
+   background-position: 100% 50%;
+ }
+ 100% {
+   background-position: 0% 50%;
+ }
+}
+
+.animate-spin-slow {
+ background: linear-gradient(0.25turn, #03438c, #17ffc5, #03438c);
+ background-size: 200% 200%;
+ animation: spin-slow 3s linear infinite;
+}
+
+/* Alternative border animation */
+@keyframes border-glow {
+ 0%, 100% {
+   box-shadow: 0 3px #03438c61, 0 0 2px #03438c61, 0 0 3px #03438c61;
+ }
+ 50% {
+   box-shadow: 0 0 2px #17ffc5, 0 0 3px #17ffc5, 0 0 4px #17ffc5;
+ }
+}
+
+.animate-border-glow {
+ animation: border-glow 10s ease-in-out infinite alternate;
+}
+
+.supabase-auth-ui_ui-label{display: none !important;}
+.supabase-auth-ui_ui-container .supabase-auth-ui_ui-container {gap:4px !important}
+.supabase-auth-ui_ui-button.c-bOcPnF-iwjZXY-color-default {background-color: #0a0a0a73 !important; border-color: #0a0a0a;}

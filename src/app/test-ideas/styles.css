@@ -1,0 +1,50 @@
+/* Custom styles for the test ideas page */
+.idea-card-hover {
+  transition: all 0.3s ease;
+}
+
+.idea-card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+}
+
+.category-badge {
+  transition: all 0.2s ease;
+}
+
+.category-badge:hover {
+  transform: scale(1.05);
+}
+
+.action-button {
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-border {
+  position: relative;
+  background: linear-gradient(90deg, #1a202c, #2d3748) padding-box,
+              linear-gradient(90deg, #4f46e5, #7c3aed) border-box;
+  border: 2px solid transparent;
+  border-radius: 0.75rem;
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+  }
+}

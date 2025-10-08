@@ -1,0 +1,14 @@
+installation:
+  version: 6.0.0-alpha.0
+  installDate: '2025-10-07T21:32:11.667Z'
+  lastUpdated: '2025-10-07T21:32:11.667Z'
+modules:
+  - core
+  - bmm
+  - cis
+ides:
+  - gemini
+  - cline
+  - kilo
+  - qwen
+  - roo
