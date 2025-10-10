@@ -19,7 +19,8 @@ export default function Header({
     limits,
     onSlotMachineOpen,
     onUpgradeClick,
-    isFixed = true // Default to fixed, but can be overridden
+    isFixed = true, // Default to fixed, but can be overridden
+    showSearch = true // Default to true, but can be overridden
 }) {
     const { user, loading, signOut, tier } = useSupabase();
     const router = useRouter();
@@ -188,12 +189,12 @@ export default function Header({
                         )}
 
                         {/* CTA button */}
-                        <button
-                            onClick={() => onUpgradeClick ? onUpgradeClick() : router.push('/pricing')}
-                            className="px-4 py-2 bg-gradient-to-r from-[#03438c6a] to-[#17ffc5ba] text-white text-sm font-semibold rounded-r-lg !rounded-l-none hover:from-[#023a7a] hover:to-[#16e5b3] transition-all duration-200 shadow-lg hover:shadow-xl"
+                        <Link
+                            href="/roles"
+                            className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold rounded-r-lg !rounded-l-none hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center"
                         >
-                            Unlock {getNextTier()}
-                        </button>
+                            Become a Founder
+                        </Link>
                     </div>
 
                     {/* Profile dropdown */}
@@ -259,8 +260,8 @@ export default function Header({
                 </div>
             </div>
 
-            {/* Search and filter controls - Only show on landing page */}
-            {isLandingPage && (
+            {/* Search and filter controls - Only show on landing page and when showSearch is true */}
+            {isLandingPage && showSearch && (
                 <div className="w-full z-[-1] mt-4">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div className="w-full md:w-1/4">
@@ -270,8 +271,8 @@ export default function Header({
                                         type="text"
                                         placeholder="Search ideas..."
                                         className="w-full px-4 py-2 pl-10 border border-[#7673d761] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-900/80 text-white backdrop-blur-sm"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        value={searchTerm || ''}
+                                        onChange={(e) => setSearchTerm && setSearchTerm(e.target.value)}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') {
                                                 e.preventDefault();
@@ -285,14 +286,14 @@ export default function Header({
                         </div>
 
                         <div className="flex flex-wrap gap-2">
-                            {categories.map(category => (
+                            {categories && categories.map(category => (
                                 <button
                                     key={category}
                                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors border ${selectedCategory === category
                                         ? `bg-indigo-600 ${getCategoryBorderColor(category)} text-white`
                                         : `bg-gray-800/80 ${getCategoryBorderColor(category)} text-[gray-300] hover:bg-gray-700/80 hover:border-gray-500`
                                         } backdrop-blur-sm`}
-                                    onClick={() => setSelectedCategory(category)}
+                                    onClick={() => setSelectedCategory && setSelectedCategory(category)}
                                 >
                                     {category}
                                 </button>

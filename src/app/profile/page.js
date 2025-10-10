@@ -51,6 +51,13 @@ export default function ProfilePage() {
         }
 
         if (user) {
+            // Check user role from localStorage
+            const role = localStorage.getItem('userRole');
+            if (role === 'backer') {
+                // Redirect backers to the main page
+                router.push('/');
+                return;
+            }
             fetchAllData();
         }
     }, [user, authLoading, router, searchTerm, selectedCategory]); // Added searchTerm and selectedCategory to dependencies
@@ -72,7 +79,7 @@ export default function ProfilePage() {
 
             if (searchTerm.trim()) {
                 // Use search API when there's a search term
-                searchIdeasBySimilarity(searchTerm, selectedCategory);
+                searchIdeasBySimilarity(searchTerm, selectedCategory, true);
             } else {
                 // Use regular fetch when no search term
                 fetchAllIdeas(true, '', selectedCategory);
@@ -246,16 +253,25 @@ export default function ProfilePage() {
     };
 
     // Function to search ideas by similarity
-    const searchIdeasBySimilarity = async (keyword, category = selectedCategory) => {
+    const searchIdeasBySimilarity = async (keyword, category = selectedCategory, reset = true) => {
         if (!keyword.trim()) {
             // If search term is empty, fetch all ideas with category filter
             fetchAllIdeas(true, '', category);
             return;
         }
 
+        // Prevent multiple simultaneous requests
+        if (loadingAllIdeas && !reset) return;
+
         try {
-            setLoadingAllIdeas(true);
-            let url = `/api/ideas/search?keyword=${encodeURIComponent(keyword.trim())}&limit=50`;
+            if (reset) {
+                setLoadingAllIdeas(true);
+            }
+
+            // Calculate offset based on current page state for search API
+            const currentOffset = reset ? 0 : allIdeasPage * 20;
+            const offset = currentOffset;
+            let url = `/api/ideas/search?keyword=${encodeURIComponent(keyword.trim())}&limit=20&offset=${offset}`;
 
             // Note: The search API doesn't support category filtering yet
             // For now, we'll search and then filter client-side if needed
@@ -270,9 +286,15 @@ export default function ProfilePage() {
                     results = results.filter(idea => idea.category === category);
                 }
 
-                setAllIdeas(results);
-                setAllIdeasPage(1);
-                setHasMoreAllIdeas(false); // Search results don't have pagination for now
+                if (reset) {
+                    setAllIdeas(results);
+                    setAllIdeasPage(1);
+                    setHasMoreAllIdeas(data.hasMore !== undefined ? data.hasMore : false);
+                } else {
+                    setAllIdeas(prev => [...prev, ...results]);
+                    setAllIdeasPage(prev => prev + 1);
+                    setHasMoreAllIdeas(data.hasMore !== undefined ? data.hasMore : false);
+                }
             } else {
                 console.error('Search failed:', data.error);
                 // Fallback to regular ideas fetch
@@ -283,15 +305,22 @@ export default function ProfilePage() {
             // Fallback to regular ideas fetch
             fetchAllIdeas(true, '', category);
         } finally {
-            setLoadingAllIdeas(false);
+            if (reset) {
+                setLoadingAllIdeas(false);
+            }
         }
     };
 
     const fetchAllIdeas = async (reset = false, currentSearchTerm = searchTerm, currentSelectedCategory = selectedCategory) => {
+        // Prevent multiple simultaneous requests
+        if (loadingAllIdeas && !reset) return;
+
         try {
             setLoadingAllIdeas(true);
-            const offset = reset ? 0 : allIdeasPage * 10;
-            let url = `/api/ideas?limit=10&offset=${offset}`;
+
+            // Use page and limit parameters that the API expects
+            const currentPage = reset ? 0 : allIdeasPage; // Use current page state directly
+            let url = `/api/ideas?page=${currentPage}&limit=20`; // Changed from 10 to 20 to load more items per page
 
             if (currentSelectedCategory && currentSelectedCategory !== 'All') {
                 url += `&category=${encodeURIComponent(currentSelectedCategory)}`;
@@ -352,11 +381,15 @@ export default function ProfilePage() {
                                 ideas={allIdeas}
                                 onIdeaClick={handleIdeaSelect}
                                 onLoadMore={() => {
-                                    if (!searchTerm.trim()) {
+                                    if (loadingAllIdeas) return; // Prevent multiple simultaneous requests
+                                    if (searchTerm.trim()) {
+                                        // For search, use the search function with pagination
+                                        searchIdeasBySimilarity(searchTerm, selectedCategory, false);
+                                    } else {
                                         fetchAllIdeas(false, searchTerm, selectedCategory);
                                     }
                                 }}
-                                hasMore={hasMoreAllIdeas && !searchTerm.trim()}
+                                hasMore={hasMoreAllIdeas}
                                 loading={loadingAllIdeas}
                                 searchTerm={searchTerm}
                                 selectedCategory={selectedCategory}

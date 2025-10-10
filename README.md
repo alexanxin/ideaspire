@@ -1,106 +1,87 @@
-# Ideaspire
+# Ideaspire: The Web3 Innovation Launchpad
 
-This project is designed to generate and manage business ideas, particularly focusing on ideas that can be implemented quickly for immediate income. The application pulls ideas from various sources including Reddit and uses AI to generate and refine business concepts.
+Ideaspire is evolving beyond a simple idea generation tool into a self-sustaining **decentralized venture launchpad**. It's an ecosystem where new business ideas are not only discovered but also validated, funded, and launched by a community of founders and backers, leveraging Web3 technology for ownership and fundraising.
 
-## Features
+## Core Features (Current Implementation)
 
-- Pulls business ideas from Reddit
-- Generates business ideas using AI
-- Manages ideas in a database with similarity checking to avoid duplicates
-- Provides a UI to view and manage ideas
-- Cron job for daily idea generation
+- **Daily Idea Generation**: Uses the Gemini API to generate 10 creative business ideas each day based on trending topics and identified user needs from sources like Reddit.
+- **Gamified Discovery ("Spin-to-Win")**: A slot machine interface allows users to "spin" to discover new idea teasers in an engaging, interactive way.
+- **Tiered Subscriptions**: A multi-level subscription model (Free, Basic, Pro, Enterprise) gates access to premium features. Higher tiers provide more daily spins, idea reveals, and access to advanced analytics.
+- **Similarity Checking**: A sophisticated Jaccard similarity algorithm prevents duplicate ideas by comparing new concepts against the existing database, with configurable thresholds and weights.
+- **User Profiles & Dashboards**: Registered users have a profile to track their activity, including spins, revealed ideas, and subscription status.
 
-## Setup
+## Roadmap
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Copy `.env.local.example` to `.env.local` and fill in your environment variables
-4. Set up your Supabase database using the schema in `create-database.sql`
-5. Run the development server: `npm run dev`
+### Phase 1: The "Insight Engine" Upgrade
 
-## Similarity Checking
+This is the next immediate development phase, focused on evolving Ideaspire into a sophisticated insight engine.
 
-The application includes a sophisticated similarity checking system to prevent duplicate entries. This system:
+- **Pain Point Intelligence**: Analyze and enrich raw data from sources like Reddit to identify the most pressing user problems using sentiment analysis and a weighted "Pain Score."
+- **Idea Validation & Refinement**: Subject generated ideas to a rigorous, automated validation process, including a "Solution-Fit Algorithm" and a "Market Viability" snapshot based on public data.
+- **Context-Rich UI**: Redesign the UI to present this new data, including a "Traceability" link to the original source pain point and a dashboard for validation metrics.
 
-- Calculates similarity between new and existing ideas using Jaccard similarity coefficient
-- Compares both title and description fields with configurable weights
-- Allows fine-tuning of the similarity threshold
-- Provides a test endpoint to analyze existing data
+### Future Vision: The Web3 Launchpad
 
-### Testing Similarity Threshold
+The long-term goal is to fully realize the Web3 launchpad, enabling a two-sided marketplace for innovators and backers.
 
-You can test the similarity checking functionality in several ways:
+- **Founder's Mint (NFTs)**: Allow founders to take ownership of ideas by minting them as NFTs, which will unlock a "Founder's Toolkit" with advanced reports and resources.
+- **Community Funding (Soft Staking)**: Enable backers to "soft-stake" cryptocurrency to a founder's minted idea in exchange for "Idea Shares," facilitating community-driven fundraising.
+- **Evolving NFTs**: The Founder's NFT will be a dynamic, living credential whose metadata evolves as the founder achieves key milestones, creating a transparent, on-chain "Proof of Build."
 
-1. **API Endpoint**: POST to `/api/test-similarity` with a threshold value and weights
-2. **Web Interface**: Visit `/test-similarity` to use the UI for testing
-3. **Command Line**: Run `npm run test-similarity -- --threshold=0.7 --weights='{"title": 0.6, "description": 0.4}'`
+## Technology Stack
 
-### Adjusting the Similarity Threshold
+- **Framework**: Next.js (App Router)
+- **Language**: JavaScript
+- **Backend**: Next.js API Routes
+- **Database**: Supabase (PostgreSQL)
+- **AI/Research**: Google Gemini API
+- **Authentication**: Supabase Auth
+- **Deployment**: Vercel
 
-The default threshold is 0.7, but you can adjust it based on your needs:
+## Project Structure
 
-- Lower threshold (e.g., 0.5): More lenient, allows more similar ideas
-- Higher threshold (e.g., 0.8): Stricter, prevents more potential duplicates
+```
+spin-to-win/
+├── src/
+│   ├── app/
+│   │   ├── api/              # API routes (ideas, subscription, profile)
+│   │   ├── (pages)/          # App pages (dashboard, pricing, profile)
+│   │   ├── layout.js
+│   │   └── page.js
+│   ├── components/           # React components (SlotMachine, IdeaCard, etc.)
+│   ├── lib/                  # Core logic & clients (Supabase, Gemini, etc.)
+│   └── ...
+└── ...
+```
 
-Run tests with different thresholds to find the optimal setting for your use case.
+## Getting Started
 
-### Removing Duplicates
-
-The application also provides functionality to remove existing duplicates from the database:
-
-- **API Endpoint**: POST to `/api/remove-duplicates` with threshold and strategy
-- **Web Interface**: Use the "Remove Duplicates" button on the `/test-similarity` page
-- **Command Line**: The functionality is available through the test script
-
-The removal process supports different strategies:
-
-- `keep-newer`: Keep the newer idea, remove the older one
-- `keep-older`: Keep the older idea, remove the newer one
-- `keep-both`: Keep both ideas (no removal)
-- `keep-neither`: Remove both duplicate ideas
-
-## Environment Variables
-
-You need to set up the following environment variables in your `.env.local` file:
-
-- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anon key
-- `CRON_AUTH_TOKEN` - Authentication token for cron jobs and API endpoints
-- `REDDIT_USERNAME` - Reddit username for API access
-- `REDDIT_PASSWORD` - Reddit password for API access
-- `REDDIT_CLIENT_ID` - Reddit app client ID
-- `REDDIT_CLIENT_SECRET` - Reddit app client secret
-- `GOOGLE_GENERATIVE_AI_API_KEY` - Google AI API key for idea generation
-
-## Database Schema
-
-The application uses Supabase as its database. The schema is defined in `create-database.sql` and includes:
-
-- `business_ideas` table for storing ideas with fields for title, description, category, etc.
-- `categories` table for organizing ideas by category
-- `user_interactions` table for tracking user engagement with ideas
+1.  **Clone the repository**:
+    ```bash
+    git clone <repository-url>
+    ```
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
+3.  **Set up environment variables**:
+    Copy `.env.local.example` to `.env.local` and fill in your credentials for Supabase, Google Gemini AI, and Reddit.
+4.  **Set up database**:
+    Use the schema in `prev_docs/create-database.sql` to set up your Supabase tables.
+5.  **Run the development server**:
+    ```bash
+    npm run dev
+    ```
 
 ## API Endpoints
 
-- `GET /api/ideas` - Retrieve all ideas
-- `POST /api/add-parsed-ideas` - Add new ideas with similarity checking
-- `POST /api/generate-ideas` - Generate new ideas using AI
-- `POST /api/test-similarity` - Test similarity on existing data
-- `POST /api/remove-duplicates` - Remove duplicate ideas (with optional specific pair removal)
-- `GET /api/cron-daily-ideas` - Run daily idea generation (requires auth token)
+The application provides a rich set of API endpoints to manage the entire lifecycle of ideas, users, and subscriptions. Key endpoints include:
 
-## Development
-
-The application is built with Next.js and follows modern React development practices. Key components include:
-
-- Server-side data fetching
-- API routes for backend functionality
-- Client-side components for UI
-- Environment-based configuration
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+-   **`/api/ideas`**: Retrieve daily business ideas.
+-   **`/api/generate-ideas`**: Trigger the AI to generate new ideas.
+-   **`/api/interactions/spin`**: Handle a user's "spin" action.
+-   **`/api/interactions/reveal`**: Handle a user revealing an idea.
+-   **`/api/subscription`**: Manage user subscription status.
+-   **`/api/profile`**: Get user-specific data like activity logs and stats.
+-   **`/api/test-similarity`**: Endpoint for testing and fine-tuning the similarity algorithm.
+-   **`/api/remove-duplicates`**: Remove duplicate ideas from the database.

@@ -8,6 +8,17 @@ export default function AdminPage() {
     const [logSteps, setLogSteps] = useState([]);
     const [additionalContext, setAdditionalContext] = useState('');
     const [result, setResult] = useState(null);
+    const [expandedLogs, setExpandedLogs] = useState(new Set());
+
+    const toggleLogExpansion = (index) => {
+        const newExpanded = new Set(expandedLogs);
+        if (newExpanded.has(index)) {
+            newExpanded.delete(index);
+        } else {
+            newExpanded.add(index);
+        }
+        setExpandedLogs(newExpanded);
+    };
 
     const handleGenerateIdeas = async () => {
         setIsGenerating(true);
@@ -160,11 +171,28 @@ export default function AdminPage() {
                             {logSteps.map((log, index) => (
                                 <div key={index} className="border-l-4 border-indigo-50 pl-4 py-2 bg-gray-800/50 rounded-r">
                                     <div className="flex justify-between items-start">
-                                        <div>
+                                        <div className="flex-1">
                                             <div className="font-medium text-white">{log.step}</div>
                                             <div className="text-sm text-gray-300 mt-1">{log.details}</div>
+                                            {log.collapsibleContent && (
+                                                <div className="mt-2">
+                                                    <button
+                                                        onClick={() => toggleLogExpansion(index)}
+                                                        className="text-xs text-indigo-400 hover:text-indigo-300 underline focus:outline-none"
+                                                    >
+                                                        {expandedLogs.has(index) ? 'Hide' : 'Show'} {log.collapsibleContent.title}
+                                                    </button>
+                                                    {expandedLogs.has(index) && (
+                                                        <div className="mt-2 p-3 bg-gray-900/50 rounded border border-gray-600 overflow-x-auto">
+                                                            <pre className="text-xs text-gray-300 whitespace-pre-wrap font-mono">
+                                                                {log.collapsibleContent.content}
+                                                            </pre>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
-                                        <div className="text-xs text-gray-500 whitespace-nowrap">
+                                        <div className="text-xs text-gray-500 whitespace-nowrap ml-4">
                                             {new Date(log.timestamp).toLocaleTimeString()}
                                         </div>
                                     </div>

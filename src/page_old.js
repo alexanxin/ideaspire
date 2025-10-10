@@ -15,7 +15,7 @@ import Leaderboard from '@/components/Leaderboard';
 import UpgradeModal from '@/components/UpgradeModal';
 import { subscriptionPlans } from '@/data/plans';
 
-export default function HomePage() {
+export default function ProfilePage() {
     const { user, loading: authLoading, signOut, tier } = useSupabase();
     const router = useRouter();
     const [likedIdeas, setLikedIdeas] = useState([]);
@@ -51,41 +51,16 @@ export default function HomePage() {
         }
 
         if (user) {
-            // Check user role from database
-            checkUserRole();
+            // Check user role from localStorage
+            const role = localStorage.getItem('userRole');
+            if (role === 'backer') {
+                // Redirect backers to the main page
+                router.push('/');
+                return;
+            }
             fetchAllData();
         }
     }, [user, authLoading, router, searchTerm, selectedCategory]); // Added searchTerm and selectedCategory to dependencies
-
-    // Function to check user role from database
-    const checkUserRole = async () => {
-        try {
-            const { data, error } = await supabase
-                .from('user_profiles')
-                .select('role')
-                .eq('id', user.id)
-                .single();
-
-            if (error) {
-                console.error('Error fetching user role:', error);
-                // Fallback to localStorage if database check fails
-                const role = localStorage.getItem('userRole');
-                if (role === 'backer') {
-                    router.push('/');
-                }
-            } else if (data && data.role === 'backer') {
-                // Redirect backers to the main page
-                router.push('/');
-            }
-        } catch (error) {
-            console.error('Error checking user role:', error);
-            // Fallback to localStorage if database check fails
-            const role = localStorage.getItem('userRole');
-            if (role === 'backer') {
-                router.push('/');
-            }
-        }
-    };
 
     // Refetch limits when tier changes (e.g., after subscription upgrade)
     useEffect(() => {
@@ -104,7 +79,7 @@ export default function HomePage() {
 
             if (searchTerm.trim()) {
                 // Use search API when there's a search term
-                searchIdeasBySimilarity(searchTerm, selectedCategory, true);
+                searchIdeasBySimilarity(searchTerm, selectedCategory);
             } else {
                 // Use regular fetch when no search term
                 fetchAllIdeas(true, '', selectedCategory);
@@ -121,7 +96,7 @@ export default function HomePage() {
         if (user && !authLoading && searchTerm === '' && selectedCategory === 'All' && allIdeas.length === 0) {
             fetchAllIdeas(true);
         }
-    }, [user, authLoading]);
+    }, [user, authLoading]); // Only run on initial load and user/authLoading changes
 
 
     useEffect(() => {
@@ -278,25 +253,16 @@ export default function HomePage() {
     };
 
     // Function to search ideas by similarity
-    const searchIdeasBySimilarity = async (keyword, category = selectedCategory, reset = true) => {
+    const searchIdeasBySimilarity = async (keyword, category = selectedCategory) => {
         if (!keyword.trim()) {
             // If search term is empty, fetch all ideas with category filter
             fetchAllIdeas(true, '', category);
             return;
         }
 
-        // Prevent multiple simultaneous requests
-        if (loadingAllIdeas && !reset) return;
-
         try {
-            if (reset) {
-                setLoadingAllIdeas(true);
-            }
-
-            // Calculate offset based on current page state for search API
-            const currentOffset = reset ? 0 : allIdeasPage * 20;
-            const offset = currentOffset;
-            let url = `/api/ideas/search?keyword=${encodeURIComponent(keyword.trim())}&limit=20&offset=${offset}`;
+            setLoadingAllIdeas(true);
+            let url = `/api/ideas/search?keyword=${encodeURIComponent(keyword.trim())}&limit=50`;
 
             // Note: The search API doesn't support category filtering yet
             // For now, we'll search and then filter client-side if needed
@@ -311,15 +277,9 @@ export default function HomePage() {
                     results = results.filter(idea => idea.category === category);
                 }
 
-                if (reset) {
-                    setAllIdeas(results);
-                    setAllIdeasPage(1);
-                    setHasMoreAllIdeas(data.hasMore !== undefined ? data.hasMore : false);
-                } else {
-                    setAllIdeas(prev => [...prev, ...results]);
-                    setAllIdeasPage(prev => prev + 1);
-                    setHasMoreAllIdeas(data.hasMore !== undefined ? data.hasMore : false);
-                }
+                setAllIdeas(results);
+                setAllIdeasPage(1);
+                setHasMoreAllIdeas(false); // Search results don't have pagination for now
             } else {
                 console.error('Search failed:', data.error);
                 // Fallback to regular ideas fetch
@@ -330,22 +290,15 @@ export default function HomePage() {
             // Fallback to regular ideas fetch
             fetchAllIdeas(true, '', category);
         } finally {
-            if (reset) {
-                setLoadingAllIdeas(false);
-            }
+            setLoadingAllIdeas(false);
         }
     };
 
     const fetchAllIdeas = async (reset = false, currentSearchTerm = searchTerm, currentSelectedCategory = selectedCategory) => {
-        // Prevent multiple simultaneous requests
-        if (loadingAllIdeas && !reset) return;
-
         try {
             setLoadingAllIdeas(true);
-
-            // Use page and limit parameters that the API expects
-            const currentPage = reset ? 0 : allIdeasPage; // Use current page state directly
-            let url = `/api/ideas?page=${currentPage}&limit=20`; // Changed from 10 to 20 to load more items per page
+            const offset = reset ? 0 : allIdeasPage * 10;
+            let url = `/api/ideas?limit=10&offset=${offset}`;
 
             if (currentSelectedCategory && currentSelectedCategory !== 'All') {
                 url += `&category=${encodeURIComponent(currentSelectedCategory)}`;
@@ -406,15 +359,11 @@ export default function HomePage() {
                                 ideas={allIdeas}
                                 onIdeaClick={handleIdeaSelect}
                                 onLoadMore={() => {
-                                    if (loadingAllIdeas) return; // Prevent multiple simultaneous requests
-                                    if (searchTerm.trim()) {
-                                        // For search, use the search function with pagination
-                                        searchIdeasBySimilarity(searchTerm, selectedCategory, false);
-                                    } else {
+                                    if (!searchTerm.trim()) {
                                         fetchAllIdeas(false, searchTerm, selectedCategory);
                                     }
                                 }}
-                                hasMore={hasMoreAllIdeas}
+                                hasMore={hasMoreAllIdeas && !searchTerm.trim()}
                                 loading={loadingAllIdeas}
                                 searchTerm={searchTerm}
                                 selectedCategory={selectedCategory}
@@ -627,21 +576,20 @@ export default function HomePage() {
             <Header
                 onViewChange={() => { }}
                 activeView="profile"
-                searchTerm={null}
-                setSearchTerm={null}
-                selectedCategory={null}
-                setSelectedCategory={null}
+                searchTerm=""
+                setSearchTerm={() => { }}
+                selectedCategory=""
+                setSelectedCategory={() => { }}
                 categories={[]}
                 limits={limits}
                 onUpgradeClick={() => setShowUpgradeModal(true)}
                 isFixed={false}
-                showSearch={false}
             />
-            <div className="flex-grow overflow-y-auto bg-gray-900 -z-10">
+            <div className="flex-grow overflow-y-auto bg-gray-900">
                 <div className="mx-auto px-4 py-8">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                         <div>
-                            <h1 className="text-xl font-bold text-[#c0b7e6] ml-7">Explore ideas</h1>
+                            <h1 className="text-xl font-bold text-[#c0b7e6] ml-7">THE DASHBOARD</h1>
                         </div>
                         {/* Tabs */}
                         <div className="flex flex-wrap gap-2">
@@ -753,8 +701,8 @@ export default function HomePage() {
                                             <input
                                                 type="text"
                                                 placeholder="Search ideas..."
-                                                className="w-full px-4 py-2 pl-10 border border-[#7673d761] rounded-lg focus:ring-2 focus:ring-indigo-50 focus:border-indigo-500 bg-gray-900/80 text-white backdrop-blur-sm"
-                                                value={searchTerm || ''}
+                                                className="w-full px-4 py-2 pl-10 border border-[#7673d761] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-900/80 text-white backdrop-blur-sm"
+                                                value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
                                             />
                                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#13fac37d]" />
@@ -784,7 +732,7 @@ export default function HomePage() {
                                 <>
                                     {/* Remaining Limits - only for non-pro/enterprise users */}
                                     {limits ? (
-                                        <div className="bg-gradient-to-br from-gray-80 to-gray-900 rounded-xl border border-gray-700 p-6">
+                                        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700 p-6">
                                             <div className="flex items-center mb-4">
                                                 <Gauge className="h-6 w-6 text-green-500 mr-2" />
                                                 <h2 className="text-xl font-bold text-white">Daily Limits</h2>
@@ -848,7 +796,7 @@ export default function HomePage() {
 
                             {/* Current Plan */}
                             {subscription ? (
-                                <div className="bg-gradient-to-br from-gray-80 to-gray-900 rounded-xl border border-gray-700 p-6">
+                                <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700 p-6">
                                     <div className="flex items-center mb-4">
                                         <Crown className="h-6 w-6 text-yellow-500 mr-2" />
                                         <h2 className="text-xl font-bold text-white">Current Plan - {subscription.name}</h2>

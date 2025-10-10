@@ -5,25 +5,54 @@ const genAI = process.env.GEMINI_API_KEY
     ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
     : null;
 
-// Get the generative model
-const model = genAI ? genAI.getGenerativeModel({ model: "gemini-2.5-flash" }) : null;
+// Get the generative model - using a more stable model name
+const model = genAI ? genAI.getGenerativeModel({
+    model: "gemini-flash-latest" // Using a more stable model name
+}) : null;
 
-// Function to generate business ideas using Gemini
+// Function to generate business ideas using Gemini with retry logic
 export const generateBusinessIdeas = async (prompt) => {
     if (!model) {
         console.warn('Gemini API key not set. Returning sample response.');
         return getSampleResponse();
     }
 
-    try {
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-        return text;
-    } catch (error) {
-        console.error('Error generating content with Gemini:', error);
-        return getSampleResponse();
+    // Maximum number of retry attempts
+    const maxRetries = 3;
+    let lastError;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            console.log(`Gemini API call attempt ${attempt}/${maxRetries}`);
+
+            const result = await model.generateContent({
+                contents: [{
+                    role: 'user',
+                    parts: [{ text: prompt }]
+                }]
+            });
+
+            const response = await result.response;
+            const text = response.text();
+
+            console.log('Successfully received response from Gemini API');
+            return text;
+        } catch (error) {
+            console.error(`Error generating content with Gemini (attempt ${attempt}/${maxRetries}):`, error);
+            lastError = error;
+
+            // If this is not the last attempt, wait before retrying
+            if (attempt < maxRetries) {
+                const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 2s, 4s, 8s
+                console.log(`Waiting ${delay}ms before retry...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
     }
+
+    // If all retries failed, log the final error and return sample response
+    console.error('All Gemini API attempts failed. Returning sample response.', lastError);
+    return getSampleResponse();
 };
 
 // Function to format Gemini response into structured business ideas

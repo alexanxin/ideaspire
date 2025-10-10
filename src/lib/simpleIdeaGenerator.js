@@ -186,7 +186,8 @@ class SimpleIdeaGenerator {
             ).join('\n\n');
 
             // Create a comprehensive prompt for Gemini
-            let analysisPrompt = `Analyze the following Reddit posts and extract key user pain points, unmet needs, and potential business opportunities. Then, generate specific business ideas that fit into the provided categories.
+            let analysisPrompt = `Analyze the following Reddit posts and extract key user pain points, unmet needs, and
+potential business opportunities. Then, generate specific business ideas that fit into the provided categories.
 
 Reddit Posts Context:
 ${redditData.data}
@@ -195,18 +196,42 @@ Available Business Idea Categories:
 ${categoriesInfo}
 
 Instructions:
-1. First, analyze the Reddit posts to identify common themes, pain points, and unmet needs
-2. Then, generate ONE specific business idea for EACH category listed above
-3. Each idea should directly address insights from the Reddit data
-4. Format each idea as a JSON object with these fields:
-  - title: A catchy, specific name for the idea
-  - description: A brief explanation of what the idea does
-  - marketOpportunity: Why this idea addresses a real market need based on the Reddit data
-  - targetAudience: Who would benefit most from this idea
-  - revenueModel: How this business could make money
-  - keyChallenges: Potential obstacles or difficulties in implementing this idea
+1. First, analyze the Reddit posts to identify common themes and pain points that could inspire business ideas.
+2. Generate ONE specific business idea for EACH category listed above.
+3. Each idea should directly address insights from the Reddit data.
+4. For each individual idea, analyze its content (title, description, etc.) to determine its specific sentiment, primary emotion, and pain score based on how it addresses or relates to the pain points identified in the Reddit data.
+5. Format the entire response as a single JSON object with one top-level key: "ideas".
 
-Provide your response as a JSON array, with one object per category in the same order as listed above. Ensure each object has all the required fields.`;
+The "ideas" array must contain one object per category, each with these fields:
+- title: A catchy, specific name for the idea
+- description: A brief explanation of what the idea does
+- marketOpportunity: Why this idea addresses a real market need based on the Reddit data
+- targetAudience: Who would benefit most from this idea
+- revenueModel: How this business could make money
+- keyChallenges: Potential obstacles or difficulties in implementing this idea
+- sentiment: The specific sentiment of this idea (e.g., "Positive", "Neutral", "Negative", "Optimistic", "Concerned", "Excited") based on its approach to solving the identified problems
+- emotion: The primary emotion this idea conveys or addresses (e.g., "Frustration", "Hopeful", "Empowerment", "Relief", "Anxiety", "Motivation")
+- pain_score: A calculated score specific to this idea (DECIMAL 4, 2) representing how well it addresses pain points in the Reddit data (0.00 to 10.00, where 10.00 indicates it directly tackles major pain points with high potential for relief)
+
+Each idea's sentiment analysis should be unique and based on the idea's specific content and approach to solving the problems identified from the Reddit data.
+
+Example Response Structure:
+{
+  "ideas": [
+    {
+      "title": "Idea 1 Title",
+      "description": "...",
+      "marketOpportunity": "...",
+      "targetAudience": "...",
+      "revenueModel": "...",
+      "keyChallenges": "...",
+      "sentiment": "Optimistic",
+      "emotion": "Hopeful",
+      "pain_score": 8.50
+    },
+    // ... remaining ideas with their individual sentiment analysis
+  ]
+}`;
 
             // Add additional context if provided
             if (additionalContext && additionalContext.trim() !== '') {
@@ -236,11 +261,11 @@ Provide your response as a JSON array, with one object per category in the same 
 
                 cleanResponse = cleanResponse.trim();
 
-                const parsedIdeas = JSON.parse(cleanResponse);
+                const combinedResult = JSON.parse(cleanResponse);
 
-                if (Array.isArray(parsedIdeas) && parsedIdeas.length === ideaTypes.length) {
+                if (combinedResult.ideas && Array.isArray(combinedResult.ideas) && combinedResult.ideas.length === ideaTypes.length) {
                     // Attach category information to each idea
-                    const ideasWithCategories = parsedIdeas.map((idea, index) => ({
+                    const ideasWithCategories = combinedResult.ideas.map((idea, index) => ({
                         ...idea,
                         category: ideaTypes[index].category
                     }));
@@ -301,7 +326,8 @@ Provide your response as a JSON array, with one object per category in the same 
             ).join('\n\n');
 
             // Create a comprehensive prompt for Gemini
-            let analysisPrompt = `Analyze the following Reddit posts and extract key user pain points, unmet needs, and potential business opportunities. Then, generate specific business ideas that fit into the provided categories.
+            let analysisPrompt = `Analyze the following Reddit posts and extract key user pain points, unmet needs, and
+potential business opportunities. Then, generate specific business ideas that fit into the provided categories.
 
 Reddit Posts Context:
 ${redditData.data}
@@ -310,18 +336,42 @@ Available Business Idea Categories:
 ${categoriesInfo}
 
 Instructions:
-1. First, analyze the Reddit posts to identify common themes, pain points, and unmet needs
-2. Then, generate ONE specific business idea for EACH category listed above
-3. Each idea should directly address insights from the Reddit data
-4. Format each idea as a JSON object with these fields:
-  - title: A catchy, specific name for the idea
-  - description: A brief explanation of what the idea does
-  - marketOpportunity: Why this idea addresses a real market need based on the Reddit data
-  - targetAudience: Who would benefit most from this idea
-  - revenueModel: How this business could make money
-  - keyChallenges: Potential obstacles or difficulties in implementing this idea
+1. First, analyze the Reddit posts to identify common themes and pain points that could inspire business ideas.
+2. Generate ONE specific business idea for EACH category listed above.
+3. Each idea should directly address insights from the Reddit data.
+4. For each individual idea, analyze its content (title, description, etc.) to determine its specific sentiment, primary emotion, and pain score based on how it addresses or relates to the pain points identified in the Reddit data.
+5. Format the entire response as a single JSON object with one top-level key: "ideas".
 
-Provide your response as a JSON array, with one object per category in the same order as listed above. Ensure each object has all the required fields.`;
+The "ideas" array must contain one object per category, each with these fields:
+- title: A catchy, specific name for the idea
+- description: A brief explanation of what the idea does
+- marketOpportunity: Why this idea addresses a real market need based on the Reddit data
+- targetAudience: Who would benefit most from this idea
+- revenueModel: How this business could make money
+- keyChallenges: Potential obstacles or difficulties in implementing this idea
+- sentiment: The specific sentiment of this idea (e.g., "Positive", "Neutral", "Negative", "Optimistic", "Concerned", "Excited") based on its approach to solving the identified problems
+- emotion: The primary emotion this idea conveys or addresses (e.g., "Frustration", "Hopeful", "Empowerment", "Relief", "Anxiety", "Motivation")
+- pain_score: A calculated score specific to this idea (DECIMAL 4, 2) representing how well it addresses pain points in the Reddit data (0.00 to 10.00, where 10.00 indicates it directly tackles major pain points with high potential for relief)
+
+Each idea's sentiment analysis should be unique and based on the idea's specific content and approach to solving the problems identified from the Reddit data.
+
+Example Response Structure:
+{
+  "ideas": [
+    {
+      "title": "Idea 1 Title",
+      "description": "...",
+      "marketOpportunity": "...",
+      "targetAudience": "...",
+      "revenueModel": "...",
+      "keyChallenges": "...",
+      "sentiment": "Optimistic",
+      "emotion": "Hopeful",
+      "pain_score": 8.50
+    },
+    // ... remaining ideas with their individual sentiment analysis
+  ]
+}`;
 
             // Add additional context if provided
             if (additionalContext && additionalContext.trim() !== '') {
@@ -364,11 +414,11 @@ Provide your response as a JSON array, with one object per category in the same 
 
                 cleanResponse = cleanResponse.trim();
 
-                const parsedIdeas = JSON.parse(cleanResponse);
+                const combinedResult = JSON.parse(cleanResponse);
 
-                if (Array.isArray(parsedIdeas) && parsedIdeas.length === ideaTypes.length) {
+                if (combinedResult.ideas && Array.isArray(combinedResult.ideas) && combinedResult.ideas.length === ideaTypes.length) {
                     // Attach category information to each idea
-                    const ideasWithCategories = parsedIdeas.map((idea, index) => ({
+                    const ideasWithCategories = combinedResult.ideas.map((idea, index) => ({
                         ...idea,
                         category: ideaTypes[index].category
                     }));
@@ -376,7 +426,7 @@ Provide your response as a JSON array, with one object per category in the same 
                     logSteps.push({
                         timestamp: new Date().toISOString(),
                         step: 'Ideas parsed successfully',
-                        details: `Successfully parsed ${parsedIdeas.length} ideas from Gemini response`
+                        details: `Successfully parsed ${combinedResult.ideas.length} ideas from Gemini response`
                     });
 
                     return {
@@ -442,7 +492,8 @@ Provide your response as a JSON array, with one object per category in the same 
             ).join('\n\n');
 
             // Create a comprehensive prompt for Gemini
-            let analysisPrompt = `Analyze the following Reddit posts and extract key user pain points, unmet needs, and potential business opportunities. Then, generate specific business ideas that fit into the provided categories.
+            let analysisPrompt = `Analyze the following Reddit posts and extract key user pain points, unmet needs, and
+potential business opportunities. Then, generate specific business ideas that fit into the provided categories.
 
 Reddit Posts Context:
 ${redditData.data}
@@ -451,24 +502,56 @@ Available Business Idea Categories:
 ${categoriesInfo}
 
 Instructions:
-1. First, analyze the Reddit posts to identify common themes, pain points, and unmet needs
-2. Then, generate ONE specific business idea for EACH category listed above
-3. Each idea should directly address insights from the Reddit data
-4. Format each idea as a JSON object with these fields:
-  - title: A catchy, specific name for the idea
-  - description: A brief explanation of what the idea does
-  - marketOpportunity: Why this idea addresses a real market need based on the Reddit data
-  - targetAudience: Who would benefit most from this idea
-  - revenueModel: How this business could make money
-  - keyChallenges: Potential obstacles or difficulties in implementing this idea
+1. First, analyze the Reddit posts to identify common themes and pain points that could inspire business ideas.
+2. Generate ONE specific business idea for EACH category listed above.
+3. Each idea should directly address insights from the Reddit data.
+4. For each individual idea, analyze its content (title, description, etc.) to determine its specific sentiment, primary emotion, and pain score based on how it addresses or relates to the pain points identified in the Reddit data.
+5. Format the entire response as a single JSON object with one top-level key: "ideas".
 
-Provide your response as a JSON array, with one object per category in the same order as listed above. Ensure each object has all the required fields.`;
+The "ideas" array must contain one object per category, each with these fields:
+- title: A catchy, specific name for the idea
+- description: A brief explanation of what the idea does
+- marketOpportunity: Why this idea addresses a real market need based on the Reddit data
+- targetAudience: Who would benefit most from this idea
+- revenueModel: How this business could make money
+- keyChallenges: Potential obstacles or difficulties in implementing this idea
+- sentiment: The specific sentiment of this idea (e.g., "Positive", "Neutral", "Negative", "Optimistic", "Concerned", "Excited") based on its approach to solving the identified problems
+- emotion: The primary emotion this idea conveys or addresses (e.g., "Frustration", "Hopeful", "Empowerment", "Relief", "Anxiety", "Motivation")
+- pain_score: A calculated score specific to this idea (DECIMAL 4, 2) representing how well it addresses pain points in the Reddit data (0.00 to 10.00, where 10.00 indicates it directly tackles major pain points with high potential for relief)
+
+Each idea's sentiment analysis should be unique and based on the idea's specific content and approach to solving the problems identified from the Reddit data.
+
+Example Response Structure:
+{
+  "ideas": [
+    {
+      "title": "Idea 1 Title",
+      "description": "...",
+      "marketOpportunity": "...",
+      "targetAudience": "...",
+      "revenueModel": "...",
+      "keyChallenges": "...",
+      "sentiment": "Optimistic",
+      "emotion": "Hopeful",
+      "pain_score": 8.50
+    },
+    // ... remaining ideas with their individual sentiment analysis
+  ]
+}`;
 
             // Add additional context if provided
             if (additionalContext && additionalContext.trim() !== '') {
                 analysisPrompt += `\n\nAdditional Context:\n${additionalContext}`;
                 realTimeLogger.log('Additional context added', `Additional context provided to Gemini: ${additionalContext.substring(0, 100)}${additionalContext.length > 100 ? '...' : ''}`);
             }
+
+            // Log the full Gemini context (collapsible)
+            realTimeLogger.log('Gemini Context Prepared', {
+                type: 'collapsible',
+                title: 'Full Gemini Prompt Context',
+                content: analysisPrompt,
+                truncated: analysisPrompt.length > 200 ? analysisPrompt.substring(0, 200) + '...' : analysisPrompt
+            });
 
             realTimeLogger.log('Sending to Gemini', 'Sending prompt to Gemini for idea generation');
 
@@ -493,16 +576,16 @@ Provide your response as a JSON array, with one object per category in the same 
 
                 cleanResponse = cleanResponse.trim();
 
-                const parsedIdeas = JSON.parse(cleanResponse);
+                const combinedResult = JSON.parse(cleanResponse);
 
-                if (Array.isArray(parsedIdeas) && parsedIdeas.length === ideaTypes.length) {
+                if (combinedResult.ideas && Array.isArray(combinedResult.ideas) && combinedResult.ideas.length === ideaTypes.length) {
                     // Attach category information to each idea
-                    const ideasWithCategories = parsedIdeas.map((idea, index) => ({
+                    const ideasWithCategories = combinedResult.ideas.map((idea, index) => ({
                         ...idea,
                         category: ideaTypes[index].category
                     }));
 
-                    realTimeLogger.log('Ideas parsed successfully', `Successfully parsed ${parsedIdeas.length} ideas from Gemini response`);
+                    realTimeLogger.log('Ideas parsed successfully', `Successfully parsed ${combinedResult.ideas.length} ideas from Gemini response`);
 
                     return {
                         success: true,

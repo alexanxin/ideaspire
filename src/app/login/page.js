@@ -279,18 +279,85 @@ export default function LoginPage() {
         }
     }, [openIdeas, isFading]);
 
+    const [selectedRole, setSelectedRole] = useState(null);
+
+    useEffect(() => {
+        if (user && selectedRole) {
+            // Store role in localStorage
+            localStorage.setItem('userRole', selectedRole);
+
+            // Update user role in the database
+            updateUserRole(selectedRole);
+
+            router.push('/');
+        }
+        // Auto-save role when user logs in
+        else if (user) {
+            // Default role is backer
+            const role = selectedRole || 'backer';
+
+            // Store role in localStorage
+            localStorage.setItem('userRole', role);
+
+            // Update user role in the database
+            updateUserRole(role);
+
+            router.push('/');
+        }
+    }, [user, selectedRole, router]);
+
+    // Check if user is already logged in and has a role set
     useEffect(() => {
         if (user) {
-            router.push('/profile');
+            const existingRole = localStorage.getItem('userRole');
+            if (existingRole) {
+                // If user already has a role, redirect them to the home page
+                router.push('/');
+            }
         }
     }, [user, router]);
+
+    // Function to update user role in the database
+    const updateUserRole = async (role) => {
+        try {
+            const { error } = await supabase
+                .from('user_profiles')
+                .upsert({
+                    id: user.id,
+                    role: role,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'id' });
+
+            if (error) {
+                console.error('Error updating user role:', error);
+            } else {
+                console.log('User role updated successfully');
+            }
+        } catch (error) {
+            console.error('Error updating user role:', error);
+        }
+    };
 
     if (user) {
         return (
             <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-                <div className="text-white text-center">
+                <div className="text-white text-center max-w-md">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-                    <p>Redirecting to your profile page...</p>
+                    <p className="mb-6">Welcome! Please select your role:</p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button
+                            onClick={() => setSelectedRole('founder')}
+                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+                        >
+                            I&#39;m a Founder
+                        </button>
+                        <button
+                            onClick={() => setSelectedRole('backer')}
+                            className="px-6 py-3 bg-teal-60 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
+                        >
+                            I&#39;m a Backer
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -324,61 +391,111 @@ export default function LoginPage() {
                                 <p className="text-gray-400">Get 5 free spins and a daily business idea. Sign in to start.</p>
                             </div>
 
-                            <Auth
-                                supabaseClient={supabase}
-                                appearance={{
-                                    theme: ThemeSupa,
-                                    variables: {
-                                        default: {
-                                            colors: {
-                                                brand: '#6366f1',
-                                                brandAccent: '#4f46e5',
-                                                brandButtonText: 'white',
-                                                defaultButtonBackground: '#374151',
-                                                defaultButtonBackgroundHover: '#4b5563',
-                                                inputBackground: '#151b24',
-                                                inputBorder: '#14495a',
-                                                inputBorderHover: '#4b5563',
-                                                inputBorderFocus: '#6366f1',
-                                            },
-                                            space: {
-                                                spaceSmall: '4px',
-                                                spaceMedium: '8px',
-                                                spaceLarge: '16px',
-                                                labelBottomMargin: '8px',
-                                                anchorBottomMargin: '4px',
-                                                emailInputSpacing: '4px',
-                                                socialAuthSpacing: '4px',
-                                                buttonPadding: '10px 15px',
-                                                inputPadding: '10px 15px',
-                                            },
-                                            fontSizes: {
-                                                baseBodySize: '13px',
-                                                baseInputSize: '14px',
-                                                baseLabelSize: '14px',
-                                                baseButtonSize: '14px',
-                                            },
-                                            radii: {
-                                                borderRadiusButton: '8px',
-                                                buttonBorderRadius: '8px',
-                                                inputBorderRadius: '8px',
+                            <div className="space-y-6">
+                                <Auth
+                                    supabaseClient={supabase}
+                                    appearance={{
+                                        theme: ThemeSupa,
+                                        variables: {
+                                            default: {
+                                                colors: {
+                                                    brand: '#6366f1',
+                                                    brandAccent: '#4f46e5',
+                                                    brandButtonText: 'white',
+                                                    defaultButtonBackground: '#374151',
+                                                    defaultButtonBackgroundHover: '#4b5563',
+                                                    inputBackground: '#151b24',
+                                                    inputBorder: '#14495a',
+                                                    inputBorderHover: '#4b5563',
+                                                    inputBorderFocus: '#636f1',
+                                                },
+                                                space: {
+                                                    spaceSmall: '4px',
+                                                    spaceMedium: '8px',
+                                                    spaceLarge: '16px',
+                                                    labelBottomMargin: '8px',
+                                                    anchorBottomMargin: '4px',
+                                                    emailInputSpacing: '4px',
+                                                    socialAuthSpacing: '4px',
+                                                    buttonPadding: '10px 15px',
+                                                    inputPadding: '10px 15px',
+                                                },
+                                                fontSizes: {
+                                                    baseBodySize: '13px',
+                                                    baseInputSize: '14px',
+                                                    baseLabelSize: '14px',
+                                                    baseButtonSize: '14px',
+                                                },
+                                                radii: {
+                                                    borderRadiusButton: '8px',
+                                                    buttonBorderRadius: '8px',
+                                                    inputBorderRadius: '8px',
+                                                },
                                             },
                                         },
-                                    },
-                                    className: {
-                                        container: 'text-white',
-                                        button: 'text-white hover:bg-indigo-700 ',
-                                        input: 'text-white !bg-[#151b24] border !border-[#14495a] focus:!border-[#6366f1]',
-                                        label: 'hidden',
-                                        message: 'text-gray-400',
-                                    },
-                                }}
-                                theme="dark"
-                                providers={['google', 'github', 'twitter', 'facebook', 'discord']}
-                                redirectTo={redirectUrl}
-                            />
+                                        className: {
+                                            container: 'text-white',
+                                            button: 'text-white hover:bg-indigo-700 ',
+                                            input: 'text-white !bg-[#151b24] border !border-[#14495a] focus:!border-[#6366f1]',
+                                            label: 'hidden',
+                                            message: 'text-gray-400',
+                                        },
+                                    }}
+                                    theme="dark"
+                                    providers={['google', 'github', 'twitter', 'facebook', 'discord']}
+                                    redirectTo={redirectUrl}
+                                />
 
+                                {/* Founder Role Checkbox */}
+                                <div className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="founder-checkbox"
+                                        checked={selectedRole === 'founder'}
+                                        onChange={(e) => setSelectedRole(e.target.checked ? 'founder' : 'backer')}
+                                        className="h-4 w-4 text-indigo-60 focus:ring-indigo-500 border-gray-600 rounded bg-gray-700"
+                                    />
+                                    <label htmlFor="founder-checkbox" className="ml-2 block text-sm text-gray-300">
+                                        I&#39;m a Founder (check this if you want to create and manage business ideas)
+                                    </label>
+                                </div>
 
+                                {/* Auto-save role when checkbox is checked */}
+                                {user && selectedRole === 'founder' && (
+                                    <div className="text-sm text-green-400 bg-green-900/20 p-3 rounded-lg border border-green-800/30">
+                                        Role automatically set to Founder. Redirecting...
+                                    </div>
+                                )}
+
+                                {/* Auto-save role when checkbox is checked */}
+                                {user && selectedRole === 'founder' && (
+                                    <div className="text-sm text-green-400 bg-green-900/20 p-3 rounded-lg border border-green-800/30">
+                                        Role automatically set to Founder. Redirecting...
+                                    </div>
+                                )}
+
+                                {/* Submit button to save role */}
+                                <button
+                                    onClick={() => {
+                                        if (user) {
+                                            // Default role is backer if none selected
+                                            const role = selectedRole || 'backer';
+                                            localStorage.setItem('userRole', role);
+                                            updateUserRole(role);
+                                            router.push('/');
+                                        } else {
+                                            alert('Please log in first');
+                                        }
+                                    }}
+                                    disabled={!user}
+                                    className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${user
+                                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                                        : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                        }`}
+                                >
+                                    Continue as {selectedRole ? selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1) : 'User'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

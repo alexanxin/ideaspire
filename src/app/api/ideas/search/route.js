@@ -17,7 +17,8 @@ export async function GET(request) {
 
         const { searchParams } = new URL(request.url);
         const keyword = searchParams.get('keyword');
-        const limit = parseInt(searchParams.get('limit') || '10');
+        const limit = parseInt(searchParams.get('limit') || '20');
+        const offset = parseInt(searchParams.get('offset') || '0');
         const threshold = parseFloat(searchParams.get('threshold') || '0.1'); // Lower threshold for keyword search
 
         if (!keyword) {
@@ -76,13 +77,15 @@ export async function GET(request) {
         });
 
         // Filter ideas based on relevance threshold and sort by relevance
-        const filteredIdeasRaw = ideasWithRelevance
+        const allFilteredIdeas = ideasWithRelevance
             .filter(idea => idea.relevance >= threshold)
-            .sort((a, b) => b.relevance - a.relevance)
-            .slice(0, limit);
+            .sort((a, b) => b.relevance - a.relevance);
+
+        // Apply pagination
+        const paginatedIdeas = allFilteredIdeas.slice(offset, offset + limit);
 
         // Transform snake_case to camelCase for frontend (same as regular API)
-        const filteredIdeas = filteredIdeasRaw.map(idea => ({
+        const filteredIdeas = paginatedIdeas.map(idea => ({
             ...idea,
             marketOpportunity: idea.market_opportunity,
             targetAudience: idea.target_audience,
@@ -95,13 +98,19 @@ export async function GET(request) {
             key_challenges: undefined
         }));
 
+        // Calculate if there are more results
+        const hasMore = offset + limit < allFilteredIdeas.length;
+
         return NextResponse.json({
             success: true,
             keyword,
             results: filteredIdeas,
             count: filteredIdeas.length,
-            totalAvailable: allIdeas.length,
-            searchThreshold: threshold
+            totalAvailable: allFilteredIdeas.length, // Total number of matching ideas after filtering
+            searchThreshold: threshold,
+            hasMore: hasMore,
+            offset: offset,
+            limit: limit
         });
 
     } catch (error) {

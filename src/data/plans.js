@@ -11,7 +11,7 @@ export const subscriptionPlans = {
             '5 spins + 1 free reveal/day',
             'View Idea Summaries',
             'Save ideas to your personal list',
-            'Minting & Staking disabled (Upgrade to participate)'
+            'Minting Disabled (Upgrade to become a Founder)'
         ]
     },
     basic: {
@@ -44,7 +44,6 @@ export const subscriptionPlans = {
             'Includes 1 FREE "Founder\'s Mint"/month',
             '50% off additional mints ($9.99 each)',
             'Submit your minted ideas for a "Community Funding Round"',
-            '"Soft-Stake" to back other ideas and earn rewards',
             'Unlocks "Accelerator" Founder\'s Toolkit upon minting'
         ]
     },

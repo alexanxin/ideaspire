@@ -1,3 +1,4 @@
+// IdeaCard.js - Fixed version with proper React component structure
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -15,23 +16,20 @@ import {
     Home,
     Activity,
     Book,
-    Target,
-    Users,
-    FileText,
-    AlertTriangle,
-    ChevronDown,
-    ChevronRight
+    Info,
 } from 'lucide-react';
 import { trackUserInteraction, isIdeaSaved, removeSavedIdea } from '@/lib/businessIdeas';
 import { useSupabase } from '@/components/SupabaseProvider';
 
-export default function IdeaCard({ idea, onIdeaClick, onCategoryClick, limits }) {
+export default function IdeaCard({ idea, onIdeaClick, onCategoryClick }) {
     const { supabase, user } = useSupabase();
     const [isCopied, setIsCopied] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [showTooltip, setShowTooltip] = useState(false);
 
-    const isRevealLimitReached = limits && limits.reveals.limit !== -1 && limits.reveals.used >= limits.reveals.limit;
+    // Assuming limits are not passed or always allow
+    const isRevealLimitReached = false;
 
     // Check if the idea is already saved when the component mounts
     useEffect(() => {
@@ -50,14 +48,6 @@ export default function IdeaCard({ idea, onIdeaClick, onCategoryClick, limits })
 
         checkIfSaved();
     }, [idea.id, supabase, user]);
-
-    // State for collapsible sections
-    const [expandedSections, setExpandedSections] = useState({
-        marketOpportunity: false,
-        targetAudience: false,
-        revenueModel: false,
-        keyChallenges: false
-    });
 
     const handleCopy = async (e) => {
         e.stopPropagation();
@@ -170,14 +160,6 @@ export default function IdeaCard({ idea, onIdeaClick, onCategoryClick, limits })
         }
     };
 
-    // Toggle section expansion
-    const toggleSection = (section) => {
-        setExpandedSections(prev => ({
-            ...prev,
-            [section]: !prev[section]
-        }));
-    };
-
     // Determine color and icon based on category
     const getCategoryConfig = () => {
         const categoryConfig = {
@@ -254,9 +236,15 @@ export default function IdeaCard({ idea, onIdeaClick, onCategoryClick, limits })
     // Get the border color for expandable sections
     const getExpandableBorderColor = () => {
         const categoryConfig = getCategoryConfig();
-        // Extract the color part from the border class (e.g., "border-indigo-600/40" -> "border-indigo-600")
-        const borderColorClass = categoryConfig.border.split(' ');
-        return borderColorClass;
+        return categoryConfig.border;
+    };
+
+    // Helper to get pain score color
+    const getPainScoreColor = (score) => {
+        if (score >= 8.0) return 'bg-red-600/20 border-red-500/20 text-red-200';
+        if (score >= 6.0) return 'bg-orange-600/20 border-orange-500/20 text-orange-200';
+        if (score >= 4.0) return 'bg-yellow-600/20 border-yellow-500/20 text-yellow-200';
+        return 'bg-green-600/20 border-green-500/20 text-green-200';
     };
 
     return (
@@ -336,116 +324,32 @@ export default function IdeaCard({ idea, onIdeaClick, onCategoryClick, limits })
                 {/* Spacer to push research section to bottom */}
                 <div className="flex-grow"></div>
 
-                {/* Collapsible detailed research data - only for Pro/Enterprise users */}
-                {(limits?.tier === 'pro' || limits?.tier === 'enterprise') && (
-                    <div className="space-y-2 text-sm text-gray-300 mb-4">
-                        {idea.marketOpportunity && (
-                            <div className={`border ${getExpandableBorderColor()} rounded-lg overflow-hidden`}>
-                                <button
-                                    className="flex items-center w-full p-3 hover:bg-gray-750 transition-colors text-left"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleSection('marketOpportunity');
-                                    }}
-                                >
-                                    <div className="flex items-center flex-grow">
-                                        <Target size={18} className="text-blue-400 mr-2 flex-shrink-0" />
-                                        <h4 className="font-bold text-white text-base">Market Opportunity</h4>
-                                    </div>
-                                    {expandedSections.marketOpportunity ?
-                                        <ChevronDown size={18} className="text-gray-400 flex-shrink-0 transition-transform duration-300" /> :
-                                        <ChevronRight size={18} className="text-gray-400 flex-shrink-0 transition-transform duration-300" />
-                                    }
-                                </button>
-                                <div className={`transition-all duration-300 ease-in-out overflow-hidden ${expandedSections.marketOpportunity ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                                    }`}>
-                                    <div className="p-3 bg-gray-850">
-                                        <p className="opacity-90 text-sm">{idea.marketOpportunity}</p>
-                                    </div>
+                {/* Pain Score Section (The "Ideaspire Edge") */}
+                {idea.pain_score !== null && idea.pain_score !== undefined && (
+                    <div className={`
+                         
+                        flex items-center justify-between p-3 rounded-lg border-t-2 
+                        ${getPainScoreColor(idea.pain_score)}
+                    `}>
+                        <div className="flex items-center relative">
+                            <Zap size={18} className="text-white mr-2 flex-shrink-0" />
+                            <span className="font-bold text-white text-sm mr-1">Pain Score</span>
+                            <Info
+                                size={14}
+                                className="text-white opacity-70 cursor-help"
+                                onMouseEnter={() => setShowTooltip(true)}
+                                onMouseLeave={() => setShowTooltip(false)}
+                            />
+                            {showTooltip && (
+                                <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg z-50 whitespace-nowrap">
+                                    Pain Score indicates the urgency and potential impact of solving this problem (1-10).
+                                    <br />Higher scores mean bigger opportunities.
                                 </div>
-                            </div>
-                        )}
-
-
-                        {idea.targetAudience && (
-                            <div className={`border ${getExpandableBorderColor()} rounded-lg overflow-hidden`}>
-                                <button
-                                    className="flex items-center w-full p-3 hover:bg-gray-750 transition-colors text-left"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleSection('targetAudience');
-                                    }}
-                                >
-                                    <div className="flex items-center flex-grow">
-                                        <Users size={18} className="text-blue-400 mr-2 flex-shrink-0" />
-                                        <h4 className="font-bold text-white text-base">Target Audience</h4>
-                                    </div>
-                                    {expandedSections.targetAudience ?
-                                        <ChevronDown size={18} className="text-gray-400 flex-shrink-0 transition-transform duration-300" /> :
-                                        <ChevronRight size={18} className="text-gray-400 flex-shrink-0 transition-transform duration-300" />
-                                    }
-                                </button>
-                                <div className={`transition-all duration-300 ease-in-out overflow-hidden ${expandedSections.targetAudience ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                                    }`}>
-                                    <div className="p-3 bg-gray-850">
-                                        <p className="opacity-90 text-sm">{idea.targetAudience}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {idea.revenueModel && (
-                            <div className={`border ${getExpandableBorderColor()} rounded-lg overflow-hidden`}>
-                                <button
-                                    className="flex items-center w-full p-3 hover:bg-gray-750 transition-colors text-left"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleSection('revenueModel');
-                                    }}
-                                >
-                                    <div className="flex items-center flex-grow">
-                                        <FileText size={18} className="text-yellow-400 mr-2 flex-shrink-0" />
-                                        <h4 className="font-bold text-white text-base">Revenue Model</h4>
-                                    </div>
-                                    {expandedSections.revenueModel ?
-                                        <ChevronDown size={18} className="text-gray-400 flex-shrink-0 transition-transform duration-300" /> :
-                                        <ChevronRight size={18} className="text-gray-400 flex-shrink-0 transition-transform duration-300" />
-                                    }
-                                </button>
-                                <div className={`transition-all duration-300 ease-in-out overflow-hidden ${expandedSections.revenueModel ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                                    }`}>
-                                    <div className="p-3 bg-gray-850">
-                                        <p className="opacity-90 text-sm">{idea.revenueModel}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        {idea.keyChallenges && (
-                            <div className={`border ${getExpandableBorderColor()} rounded-lg overflow-hidden`}>
-                                <button
-                                    className="flex items-center w-full p-3 hover:bg-gray-750 transition-colors text-left"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        toggleSection('keyChallenges');
-                                    }}
-                                >
-                                    <div className="flex items-center flex-grow">
-                                        <AlertTriangle size={18} className="text-red-400 mr-2 flex-shrink-0" />
-                                        <h4 className="font-bold text-white text-base">Key Challenges</h4>
-                                    </div>
-                                    {expandedSections.keyChallenges ?
-                                        <ChevronDown size={18} className="text-gray-400 flex-shrink-0 transition-transform duration-300" /> :
-                                        <ChevronRight size={18} className="text-gray-400 flex-shrink-0 transition-transform duration-300" />
-                                    }
-                                </button>
-                                <div className={`transition-all duration-300 ease-in-out overflow-hidden ${expandedSections.keyChallenges ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                                    }`}>
-                                    <div className="p-3 bg-gray-850">
-                                        <p className="opacity-90 text-sm">{idea.keyChallenges}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
+                        <span className="text-lg font-extrabold text-white">
+                            {parseFloat(idea.pain_score).toFixed(2)} / 10.00
+                        </span>
                     </div>
                 )}
 

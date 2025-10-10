@@ -1,0 +1,2 @@
+-- DEPRECATED: This migration has been replaced by 20251010130000_add_user_profiles_table.sql
+-- Please use the new migration file instead.

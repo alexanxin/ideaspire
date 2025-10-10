@@ -38,7 +38,7 @@ const CategoryItem = ({ category, isWinning = false, onClick, disabled = false }
         <div
             className={`
                 w-full relative rounded-lg shadow-sm transition-all duration-200 transform
-                border-t-4 ${getCategoryClasses(category).border} ${getCategoryClasses(category).bg}
+                border-t-4 py-3 ${getCategoryClasses(category).border} ${getCategoryClasses(category).bg}
                 flex flex-col overflow-hidden
                 ${isWinning ? ' hover:scale-105' : ''}
                 ${disabled ? 'opacity-50 cursor-not-allowed grayscale' : onClick ? 'cursor-pointer hover:scale-105' : 'cursor-default'}
@@ -317,7 +317,7 @@ export default React.forwardRef(function DemoSlotMachine({ onIdeaRevealed, pause
                                     const isCenterItem = idx === 25;
                                     const category = columnCategories[idx % columnCategories.length];
                                     return (
-                                        <div key={`col-${idx}`} className="h-20 flex items-center justify-center p-1">
+                                        <div key={`col-${idx}`} className="h-20 flex items-center justify-center p-1 ">
                                             <CategoryItem
                                                 category={category}
                                                 isWinning={!spinning && isCenterItem && revealedCategory === category}

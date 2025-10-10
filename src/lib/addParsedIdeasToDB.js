@@ -63,13 +63,17 @@ export async function addParsedIdeasToDB(ideasArray, similarityThreshold = 0.7) 
                     similarTo: similarResult.similarIdea,
                     similarity: similarResult.similarity
                 });
-            } else {
+            }
+            else {
                 // Create a new object with the correct field names for the database
                 const {
                     marketOpportunity,
                     targetAudience,
                     revenueModel,
                     keyChallenges,
+                    sentiment,
+                    emotion,
+                    pain_score,
                     ...restOfIdea
                 } = idea; // Destructure to separate camelCase fields from the rest
 
@@ -88,6 +92,10 @@ export async function addParsedIdeasToDB(ideasArray, similarityThreshold = 0.7) 
                     target_audience: targetAudience,
                     revenue_model: revenueModel,
                     key_challenges: keyChallenges,
+                    // Add new sentiment fields
+                    sentiment: sentiment,
+                    emotion: emotion,
+                    pain_score: pain_score,
                 });
             }
         }

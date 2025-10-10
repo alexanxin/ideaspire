@@ -330,6 +330,39 @@ Please summarize the most common and significant pain points, tool gaps, and use
         }
     }
 
+    // NEW FUNCTION for Sentiment and Emotion Analysis
+    async analyzeSentimentAndEmotion(text) {
+        try {
+            const analysisPrompt = `Analyze the sentiment and primary emotion of the following text. Provide the output in a structured JSON format.
+
+Text to Analyze:
+"""
+${text}
+"""
+
+Respond with a JSON object with two keys: "sentiment" and "emotion".
+- "sentiment" should be one of: "Positive", "Neutral", "Negative".
+- "emotion" should be one of: "Frustration", "Anger", "Desperation", "Hopeful", "Excitement", "Curiosity", "Neutral".
+
+Example Response:
+{
+  "sentiment": "Negative",
+  "emotion": "Frustration"
+}
+`;
+            const rawResult = await generateBusinessIdeas(analysisPrompt);
+
+            // Clean the raw result to ensure it's valid JSON
+            const cleanedResult = rawResult.replace(/```json/g, '').replace(/```/g, '').trim();
+
+            const result = JSON.parse(cleanedResult);
+            return { success: true, data: result };
+        } catch (error) {
+            console.error('Error during sentiment and emotion analysis:', error);
+            return { success: false, error: error.message, data: { sentiment: 'Neutral', emotion: 'Neutral' } };
+        }
+    }
+
     // Extract user needs and pain points from Reddit posts
     async getRedditTrends() {
         try {
@@ -492,6 +525,9 @@ Please summarize the most common and significant pain points, tool gaps, and use
             // Combine all texts and analyze with Gemini
             const combinedText = allTexts.join('\n\n---\n\n');
 
+            // NEW STEP: Analyze sentiment and emotion before generating ideas
+            const sentimentAnalysisResult = await this.analyzeSentimentAndEmotion(combinedText);
+
             const analysisPrompt = `Analyze the following Reddit posts and extract key user pain points, unmet needs, and potential business opportunities for tools/services. Focus on frustration, gaps in existing solutions, and desires for new tools.
 
 Posts:
@@ -544,7 +580,8 @@ Please summarize the most common and significant pain points, tool gaps, and use
                 success: true,
                 trends: needs,
                 postsFound: allTexts.length,
-                usedAi: true
+                usedAi: true,
+                sentimentData: sentimentAnalysisResult.data
             };
         } catch (error) {
             console.error('Error extracting Reddit needs:', error);
@@ -596,13 +633,16 @@ Please summarize the most common and significant pain points, tool gaps, and use
             // Remove duplicates
             const uniqueTrends = [...new Set(allTrends)];
 
+            const redditSentimentData = redditData.status === 'fulfilled' ? redditData.value.sentimentData : null;
+
             return {
                 success: true,
                 trends: uniqueTrends.length > 0 ? uniqueTrends.slice(0, 30) : this.getFallbackTrends(), // Limit to 30 trends
                 sources: {
                     twitter: twitterData.status === 'fulfilled',
                     reddit: redditData.status === 'fulfilled'
-                }
+                },
+                sentimentData: redditSentimentData
             };
         } catch (error) {
             console.error('Error in combined research:', error);

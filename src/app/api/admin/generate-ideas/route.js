@@ -13,8 +13,13 @@ class IdeaGenerationStream {
         const logEntry = {
             timestamp: new Date().toISOString(),
             step,
-            details
+            details: typeof details === 'string' ? details : step
         };
+
+        // Handle collapsible content
+        if (typeof details === 'object' && details.type === 'collapsible') {
+            logEntry.collapsibleContent = details;
+        }
 
         this.logSteps.push(logEntry);
 
@@ -66,8 +71,13 @@ export async function POST(request) {
                 const logEntry = {
                     timestamp: new Date().toISOString(),
                     step,
-                    details
+                    details: typeof details === 'string' ? details : step
                 };
+
+                // Handle collapsible content
+                if (typeof details === 'object' && details.type === 'collapsible') {
+                    logEntry.collapsibleContent = details;
+                }
 
                 logSteps.push(logEntry);
 
@@ -89,8 +99,13 @@ export async function POST(request) {
                     const logEntry = {
                         timestamp: new Date().toISOString(),
                         step,
-                        details
+                        details: typeof details === 'string' ? details : step
                     };
+
+                    // Handle collapsible content
+                    if (typeof details === 'object' && details.type === 'collapsible') {
+                        logEntry.collapsibleContent = details;
+                    }
 
                     logSteps.push(logEntry);
 

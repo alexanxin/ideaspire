@@ -244,6 +244,21 @@ export default function IdeaCard({ idea, onIdeaClick, onCategoryClick, limits, o
         return categoryConfig.border;
     };
 
+    // Get pain score description based on score
+    const getPainScoreDescription = (score) => {
+        if (!score) return null;
+
+        if (score >= 8.0) {
+            return "This is an exceptional opportunity with major market potential. This high pain score indicates a significant problem worth addressing.";
+        } else if (score >= 6.0) {
+            return "This is a great opportunity with solid market potential. The pain point is substantial enough to justify development.";
+        } else if (score >= 4.0) {
+            return "This is a moderate opportunity worth considering. The pain point is notable but may require competitive differentiation.";
+        } else {
+            return "This is a limited opportunity with small market potential. Consider if the problem-solving value outweighs development costs.";
+        }
+    };
+
     return (
         <div
             className={`
@@ -373,6 +388,45 @@ export default function IdeaCard({ idea, onIdeaClick, onCategoryClick, limits, o
                             <p className="opacity-90 text-sm leading-relaxed">{idea.keyChallenges}</p>
                         </div>
                     )}
+
+                    {idea.sentiment && (
+                        <div className={`border-l-4 ${getExpandableBorderColor()} pl-8 py-4 bg-gray-800/30 rounded-r-lg`}>
+                            <div className="flex items-center mb-4">
+                                <TrendingUp size={24} className="text-green-400 mr-4 flex-shrink-0" />
+                                <h4 className="font-bold text-white text-xl">Source Sentiment</h4>
+                            </div>
+                            <p className="opacity-90 text-sm leading-relaxed">
+                                The source text for this idea had an overall <span className="font-semibold text-white">{idea.sentiment}</span> sentiment.
+                            </p>
+                        </div>
+                    )}
+
+                    {idea.emotion && (
+                        <div className={`border-l-4 ${getExpandableBorderColor()} pl-8 py-4 bg-gray-800/30 rounded-r-lg`}>
+                            <div className="flex items-center mb-4">
+                                <Heart size={24} className="text-pink-400 mr-4 flex-shrink-0" />
+                                <h4 className="font-bold text-white text-xl">Source Emotion</h4>
+                            </div>
+                            <p className="opacity-90 text-sm leading-relaxed">
+                                The primary emotion detected was <span className="font-semibold text-white">{idea.emotion}</span>.
+                            </p>
+                        </div>
+                    )}
+
+                    {idea.pain_score && (
+                        <div className={`border-l-4 border-red-500/40 pl-8 py-4 bg-gray-800/30 rounded-r-lg`}>
+                            <div className="flex items-center mb-4">
+                                <Zap size={24} className="text-red-400 mr-4 flex-shrink-0" />
+                                <h4 className="font-bold text-white text-xl">Pain Score</h4>
+                            </div>
+                            <p className="opacity-90 text-sm leading-relaxed">
+                                Pain Score: <span className="font-semibold text-white">{idea.pain_score}/10 🔥</span>
+                            </p>
+                            <p className="opacity-75 text-sm leading-relaxed mt-2">
+                                {getPainScoreDescription(idea.pain_score)}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Visual separator before guidance */}
@@ -458,11 +512,11 @@ export default function IdeaCard({ idea, onIdeaClick, onCategoryClick, limits, o
                             className="flex items-center px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg transition-all action-button text-base"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                alert("NFT minting feature would open here - establish ownership and potentially monetize your idea");
+                                alert("This will begin the process of taking ownership and minting the idea as an NFT.");
                             }}
                         >
                             <Wallet className="h-6 w-6 mr-3" />
-                            Mint as NFT
+                            Take Ownership & Mint NFT
                         </button>
 
                         <button
@@ -488,5 +542,3 @@ export default function IdeaCard({ idea, onIdeaClick, onCategoryClick, limits, o
         </div>
     );
 }
-
-
