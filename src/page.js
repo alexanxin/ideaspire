@@ -319,7 +319,7 @@ export default function HomePage() {
                         </li>
                         <li className="flex items-start">
                             <span className="text-green-40 mr-2">✓</span>
-                            <span>Track the performance of ideas you've supported</span>
+                            <span>Track the performance of ideas you&apos;ve supported</span>
                         </li>
                         <li className="flex items-start">
                             <span className="text-green-40 mr-2">✓</span>
@@ -328,7 +328,7 @@ export default function HomePage() {
                     </ul>
 
                     <div className="mt-8 p-4 bg-gray-90 rounded-lg">
-                        <p className="text-gray-40 italic">"The future belongs to those who believe in the beauty of their dreams" - Backer's perspective</p>
+                        <p className="text-gray-40 italic">&quot;The future belongs to those who believe in the beauty of their dreams&quot; - Backer&apos;s perspective</p>
                     </div>
                 </div>
             </div>
