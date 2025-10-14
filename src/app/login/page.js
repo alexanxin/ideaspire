@@ -349,13 +349,13 @@ export default function LoginPage() {
                             onClick={() => setSelectedRole('founder')}
                             className="px-6 py-3 bg-indigo-60 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
                         >
-                            I'm a Founder
+                            I&apos;m a Founder
                         </button>
                         <button
                             onClick={() => setSelectedRole('backer')}
                             className="px-6 py-3 bg-teal-60 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
                         >
-                            I'm a Backer
+                            I&apos;m a Backer
                         </button>
                     </div>
                 </div>
