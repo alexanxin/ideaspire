@@ -110,10 +110,10 @@ const FloatingIdeaCard = ({ idea, position, fading }) => {
 const getCategoryClasses = (category) => {
     const categoryStyles = {
         'Tech': { border: 'border-indigo-600/40', bg: 'bg-indigo-900/15', tagBg: 'bg-indigo-600/40' },
-        'Startup': { border: 'border-purple-600/40', bg: 'bg-purple-900/15', tagBg: 'bg-purple-600/40' },
+        'Startup': { border: 'border-purple-60/40', bg: 'bg-purple-900/15', tagBg: 'bg-purple-600/40' },
         'E-commerce': { border: 'border-green-600/40', bg: 'bg-green-900/15', tagBg: 'bg-green-600/40' },
         'Service': { border: 'border-yellow-600/40', bg: 'bg-yellow-900/15', tagBg: 'bg-yellow-600/40' },
-        'Quick Money': { border: 'border-red-600/40', bg: 'bg-red-900/15', tagBg: 'bg-red-600/40' },
+        'Quick Money': { border: 'border-red-600/40', bg: 'bg-red-900/15', tagBg: 'bg-red-60/40' },
         'Social Impact': { border: 'border-teal-600/40', bg: 'bg-teal-900/15', tagBg: 'bg-teal-600/40' },
         'Remote Work': { border: 'border-cyan-600/40', bg: 'bg-cyan-900/15', tagBg: 'bg-cyan-600/40' },
         'Health & Wellness': { border: 'border-pink-600/40', bg: 'bg-pink-900/15', tagBg: 'bg-pink-600/40' },
@@ -347,15 +347,15 @@ export default function LoginPage() {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <button
                             onClick={() => setSelectedRole('founder')}
-                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+                            className="px-6 py-3 bg-indigo-60 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
                         >
-                            I&#39;m a Founder
+                            I'm a Founder
                         </button>
                         <button
                             onClick={() => setSelectedRole('backer')}
                             className="px-6 py-3 bg-teal-60 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors"
                         >
-                            I&#39;m a Backer
+                            I'm a Backer
                         </button>
                     </div>
                 </div>
@@ -391,6 +391,36 @@ export default function LoginPage() {
                                 <p className="text-gray-400">Get 5 free spins and a daily business idea. Sign in to start.</p>
                             </div>
 
+                            {/* Role Selection Switch */}
+                            <div className="mb-6">
+                                <div className="flex items-center justify-center mb-4">
+                                    <span className={`mr-4 px-3 py-1 rounded-l-lg font-medium transition-colors ${selectedRole === 'backer' ? 'bg-teal-600 text-white' : 'bg-gray-700 text-gray-300'}`}>
+                                        Backer
+                                    </span>
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setSelectedRole(selectedRole === 'backer' ? 'founder' : 'backer')}
+                                            className="w-14 h-7 flex items-center bg-gray-600 rounded-full p-1 transition-colors duration-300 ease-in-out"
+                                            style={{
+                                                backgroundColor: selectedRole ? (selectedRole === 'founder' ? '#4f46e5' : '#0d9488') : '#6b7280'
+                                            }}
+                                        >
+                                            <div
+                                                className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform duration-300 ease-in-out ${selectedRole === 'founder' ? 'translate-x-7' : 'translate-x-0'}`}
+                                            ></div>
+                                        </button>
+                                    </div>
+                                    <span className={`ml-4 px-3 py-1 rounded-r-lg font-medium transition-colors ${selectedRole === 'founder' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'}`}>
+                                        Founder
+                                    </span>
+                                </div>
+                                <p className="text-center text-sm text-gray-400">
+                                    {selectedRole === 'founder'
+                                        ? 'As a Founder, you can create and manage business ideas'
+                                        : 'As a Backer, you can discover and support business ideas'}
+                                </p>
+                            </div>
+
                             <div className="space-y-6">
                                 <Auth
                                     supabaseClient={supabase}
@@ -407,7 +437,7 @@ export default function LoginPage() {
                                                     inputBackground: '#151b24',
                                                     inputBorder: '#14495a',
                                                     inputBorderHover: '#4b5563',
-                                                    inputBorderFocus: '#636f1',
+                                                    inputBorderFocus: '#6366f1',
                                                 },
                                                 space: {
                                                     spaceSmall: '4px',
@@ -444,33 +474,14 @@ export default function LoginPage() {
                                     theme="dark"
                                     providers={['google', 'github', 'twitter', 'facebook', 'discord']}
                                     redirectTo={redirectUrl}
+                                    view={selectedRole ? 'sign_in' : undefined}
+                                    disabled={!selectedRole}
                                 />
 
-                                {/* Founder Role Checkbox */}
-                                <div className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        id="founder-checkbox"
-                                        checked={selectedRole === 'founder'}
-                                        onChange={(e) => setSelectedRole(e.target.checked ? 'founder' : 'backer')}
-                                        className="h-4 w-4 text-indigo-60 focus:ring-indigo-500 border-gray-600 rounded bg-gray-700"
-                                    />
-                                    <label htmlFor="founder-checkbox" className="ml-2 block text-sm text-gray-300">
-                                        I&#39;m a Founder (check this if you want to create and manage business ideas)
-                                    </label>
-                                </div>
-
-                                {/* Auto-save role when checkbox is checked */}
-                                {user && selectedRole === 'founder' && (
-                                    <div className="text-sm text-green-400 bg-green-900/20 p-3 rounded-lg border border-green-800/30">
-                                        Role automatically set to Founder. Redirecting...
-                                    </div>
-                                )}
-
-                                {/* Auto-save role when checkbox is checked */}
-                                {user && selectedRole === 'founder' && (
-                                    <div className="text-sm text-green-400 bg-green-900/20 p-3 rounded-lg border border-green-800/30">
-                                        Role automatically set to Founder. Redirecting...
+                                {/* Role selection reminder */}
+                                {!selectedRole && (
+                                    <div className="text-center text-sm text-yellow-400 bg-yellow-900/20 p-3 rounded-lg border-yellow-800/30">
+                                        Please select your role (Backer or Founder) to continue
                                     </div>
                                 )}
 
@@ -487,8 +498,8 @@ export default function LoginPage() {
                                             alert('Please log in first');
                                         }
                                     }}
-                                    disabled={!user}
-                                    className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${user
+                                    disabled={!user || !selectedRole}
+                                    className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${user && selectedRole
                                         ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
                                         : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                                         }`}
