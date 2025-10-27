@@ -1,32 +1,74 @@
-# Ideaspire: The Web3 Innovation Launchpad
+# Ideaspire: The Decentralized Venture Launchpad
 
-Ideaspire is evolving beyond a simple idea generation tool into a self-sustaining **decentralized venture launchpad**. It's an ecosystem where new business ideas are not only discovered but also validated, funded, and launched by a community of founders and backers, leveraging Web3 technology for ownership and fundraising.
+Ideaspire is a **decentralized venture launchpad** designed to discover, validate, fund, and launch new business ideas. It's an ecosystem where new business ideas are not only discovered but also validated, funded, and launched by a community of founders and backers, leveraging Web3 technology for ownership and fundraising.
 
-## Core Features (Current Implementation)
+## Vision & Business Model
 
-- **Daily Idea Generation**: Uses the Gemini API to generate 10 creative business ideas each day based on trending topics and identified user needs from sources like Reddit.
-- **Gamified Discovery ("Spin-to-Win")**: A slot machine interface allows users to "spin" to discover new idea teasers in an engaging, interactive way.
-- **Tiered Subscriptions**: A multi-level subscription model (Free, Basic, Pro, Enterprise) gates access to premium features. Higher tiers provide more daily spins, idea reveals, and access to advanced analytics.
-- **Similarity Checking**: A sophisticated Jaccard similarity algorithm prevents duplicate ideas by comparing new concepts against the existing database, with configurable thresholds and weights.
-- **User Profiles & Dashboards**: Registered users have a profile to track their activity, including spins, revealed ideas, and subscription status.
+Our business model is a hybrid:
 
-## Roadmap
+- **SaaS for Founders**: We charge a subscription fee (Basic, Pro, Enterprise) for access to the tools of creation, including the Founder's Toolkits, the ability to mint ideas as NFTs, and the right to list projects on our Launchpad.
+- **Success Fee for the Platform**: We take a small commission on successfully funded projects, aligning our success with the success of the founders.
 
-### Phase 1: The "Insight Engine" Upgrade
+Access to browse and back projects on the Launchpad is **free** for all users, maximizing the potential capital pool for our founders.
 
-This is the next immediate development phase, focused on evolving Ideaspire into a sophisticated insight engine.
+## Core User Journeys
 
-- **Pain Point Intelligence**: Analyze and enrich raw data from sources like Reddit to identify the most pressing user problems using sentiment analysis and a weighted "Pain Score."
-- **Idea Validation & Refinement**: Subject generated ideas to a rigorous, automated validation process, including a "Solution-Fit Algorithm" and a "Market Viability" snapshot based on public data.
-- **Context-Rich UI**: Redesign the UI to present this new data, including a "Traceability" link to the original source pain point and a dashboard for validation metrics.
+Our ecosystem is built for two primary actors: the **Founder** and the **Backer**.
 
-### Future Vision: The Web3 Launchpad
+### The Founder's Journey
 
-The long-term goal is to fully realize the Web3 launchpad, enabling a two-sided marketplace for innovators and backers.
+1. **Discover**: A subscribed Founder finds a high-potential idea, validated by our "Insight Engine."
+2. **Mint**: The Founder takes ownership by minting the idea as a unique NFT, which unlocks their "Founder's Toolkit."
+3. **Launch**: The Founder lists their project on the Launchpad, setting a funding goal and providing a pitch to attract capital.
 
-- **Founder's Mint (NFTs)**: Allow founders to take ownership of ideas by minting them as NFTs, which will unlock a "Founder's Toolkit" with advanced reports and resources.
-- **Community Funding (Soft Staking)**: Enable backers to "soft-stake" cryptocurrency to a founder's minted idea in exchange for "Idea Shares," facilitating community-driven fundraising.
-- **Evolving NFTs**: The Founder's NFT will be a dynamic, living credential whose metadata evolves as the founder achieves key milestones, creating a transparent, on-chain "Proof of Build."
+### The Backer's Journey
+
+1. **Discover**: A Backer browses the Launchpad for free, using powerful filters to find projects that align with their interests.
+2. **Pledge**: The Backer contributes capital to a project they believe in via a "soft-staking" mechanism. Soft-Staking is available to all users (Auditors) with a contribution cap, ensuring maximum capital flow.
+3. **Support & Share**: In return, the Backer receives "Idea Shares" and can track the project's progress through on-chain milestones.
+
+## Key Features
+
+### The "Insight Engine"
+
+This is the next major development phase, focused on enriching our idea validation process.
+
+- **Pain Point Intelligence**: Analyze data from sources like Reddit to assign a **"Pain Score" (0.00-10.00)** to problems, indicating market urgency.
+- **Sentiment Analysis**: Automatically determine the **Source Sentiment** (Positive, Neutral, Negative) and **Source Emotion** (Frustration, Hopeful, etc.) of the raw data.
+- **Context-Rich UI**: Display this new data to empower Founders and Backers.
+
+### The Launchpad
+
+This is the central marketplace where Founders and Backers connect.
+
+- **Gallery & Discovery**: A modern, filterable gallery of projects with Idea Cards that display the **Title, Category, Description,** and prominently feature the **Pain Score** as the primary metric for quick discovery.
+- **Project Pages**: Detailed pages for each project with the Founder's pitch, roadmap, and "Insight Engine" data.
+
+### Minting Models
+
+We offer two paths for idea actualization:
+
+1. **The Founder Model**: A single leader mints a unique NFT to lead the project.
+2. **The Facilitator Model**: A community builder initiates a "community mint" of fractionalized "Idea Shards" to collectively fund and govern a project.
+
+### Economic Engine
+
+- **Founder's Toolkits**: Subscription-gated toolkits ("Spark" and "Accelerator") that provide AI-generated reports, branding assets, and community access.
+- **Idea Shares**: Project-specific fungible tokens that represent a Backer's contribution and grant them utility (e.g., airdrops, beta access).
+
+## Current Implemented State
+
+Our codebase confirms the following features are implemented at a foundational level:
+
+- **Core UI**: A responsive idea view with detailed idea cards.
+- **Gamified Discovery**: A "Slot Machine" for idea discovery.
+- **User System**: User profiles, authentication, and activity logging.
+- **Subscription Tiers**: The tier structure defines **Dual Roles** (Founder/Backer) and enables Soft-Staking for all tiers:
+  - **Starter (Auditor)**: Limited Soft-Staking (e.g., $100 cap).
+  - **Basic (Analyst)**: Increased Soft-Staking cap.
+  - **Pro (Patron) / Enterprise (Venture Partner)**: Unlimited Soft-Staking and full rewards.
+- **Idea Management**: API routes for generating, adding, and managing ideas, including similarity checking.
+- **Insight Engine (Data & Display)**: Implemented logic for generating and saving **Pain Score, Source Sentiment, and Source Emotion** from Reddit data, and displaying this data in both gallery and detail components.
 
 ## Technology Stack
 
@@ -77,11 +119,11 @@ spin-to-win/
 
 The application provides a rich set of API endpoints to manage the entire lifecycle of ideas, users, and subscriptions. Key endpoints include:
 
--   **`/api/ideas`**: Retrieve daily business ideas.
--   **`/api/generate-ideas`**: Trigger the AI to generate new ideas.
--   **`/api/interactions/spin`**: Handle a user's "spin" action.
--   **`/api/interactions/reveal`**: Handle a user revealing an idea.
--   **`/api/subscription`**: Manage user subscription status.
--   **`/api/profile`**: Get user-specific data like activity logs and stats.
--   **`/api/test-similarity`**: Endpoint for testing and fine-tuning the similarity algorithm.
--   **`/api/remove-duplicates`**: Remove duplicate ideas from the database.
+- **`/api/ideas`**: Retrieve daily business ideas.
+- **`/api/generate-ideas`**: Trigger the AI to generate new ideas.
+- **`/api/interactions/spin`**: Handle a user's "spin" action.
+- **`/api/interactions/reveal`**: Handle a user revealing an idea.
+- **`/api/subscription`**: Manage user subscription status.
+- **`/api/profile`**: Get user-specific data like activity logs and stats.
+- **`/api/test-similarity`**: Endpoint for testing and fine-tuning the similarity algorithm.
+- **`/api/remove-duplicates`**: Remove duplicate ideas from the database.
